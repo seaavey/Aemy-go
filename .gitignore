@@ -1,0 +1,42 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of `go build`
+*.out
+
+# Testing
+*.test
+
+# Output of `go run`
+*.run
+
+# Go workspace stuff
+bin/
+obj/
+pkg/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Dependency directories (vendor/)
+vendor/
+
+# Logs
+*.log
+
+# Env files
+.env
+.env.local
+
+# QR codes
+qrcode.png
+
+# SQLite DB
+*.db
