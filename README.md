@@ -69,6 +69,10 @@ Before you begin, ensure you have Go installed on your system.
 
 For production, it is highly recommended to run the bot on a **Linux** server for better stability, performance, and tooling.
 
+### A Note on Pterodactyl (Not Recommended)
+
+While Pterodactyl is a popular panel for hosting applications, it is **not recommended** for this bot. Pterodactyl is primarily designed for game servers and its file management system can interfere with how this bot saves session data (`session.db`, `qrcode.png`). This can lead to frequent QR code scans and session loss every time the server restarts. For a stable experience, please use one of the recommended methods below.
+
 ### Method 1: Linux (Using `screen`)
 
 `screen` is a terminal multiplexer that allows you to run a process in the background and detach from the session, keeping it running even after you log out.
