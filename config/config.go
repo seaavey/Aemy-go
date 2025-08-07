@@ -13,3 +13,8 @@ var Prefixes = []rune{'!', '.'}
 var Owners = []string{
 	"6289513081052",
 }
+
+// Self determines whether the bot should process its own messages.
+// Setting this to true means the bot will react to commands sent from its own number.
+// It is generally recommended to keep this false to prevent infinite loops.
+var Self = true

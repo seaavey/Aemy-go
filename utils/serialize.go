@@ -46,7 +46,7 @@ func Serialize(ctx *events.Message) types.Messages {
 		FromMe:       info.IsFromMe,
 		ID:           info.ID,
 		IsGroup:      info.IsGroup,
-		IsOwner:      isOwner(info.Sender.User), // Check if the sender is an owner.
+		IsOwner:      info.IsFromMe || isOwner(info.Sender.User), // Check if the sender is an owner.
 		Sender:       info.Sender,
 		SenderUser:   info.Sender.User,
 		SenderServer: info.Sender.Server,

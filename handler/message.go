@@ -3,6 +3,7 @@
 package handler
 
 import (
+	"botwa/config"
 	"botwa/utils"
 	"fmt"
 
@@ -27,10 +28,13 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 		// Serialize the raw message event into a more manageable custom format.
 		m := utils.Serialize(v)
 
-		// Ignore messages originating from newsletters to prevent processing channel updates.
-		if m.FromServer == "newsletter" {
+		// Ignore certain messages:
+		// - Skip messages from newsletters to avoid processing channel-type messages (like WhatsApp Channels).
+		// - If 'Self' mode is enabled, only allow commands from the bot owner.
+		if m.FromServer == "newsletter" || (config.Self && !m.IsOwner) {
 			return
 		}
+
 
 		// Automatically mark status updates as read.
 		if m.From.String() == "status@broadcast" {
@@ -47,6 +51,6 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 		}
 
 		// Pass the serialized message to the command handler for further processing.
-		utils.HandleCommand(client, m, v)
+		HandleCommand(client, m, v)
 	}
 }
