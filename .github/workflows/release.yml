@@ -1,0 +1,79 @@
+# This is a GitHub Actions workflow that creates a new release
+# and builds the application for multiple platforms (Linux, Windows, macOS).
+# The workflow is triggered manually or when a new tag is pushed.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # Trigger on tags like v1.0.0
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22" # Specify your Go version
+
+      - name: Build for Linux
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o bot-linux
+          tar -czvf bot-linux-amd64.tar.gz bot-linux
+
+      - name: Build for Windows
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o bot-windows.exe
+          zip bot-windows-amd64.zip bot-windows.exe
+
+      - name: Build for macOS
+        run: |
+          GOOS=darwin GOARCH=amd64 go build -o bot-macos
+          tar -czvf bot-macos-amd64.tar.gz bot-macos
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bot-linux-amd64.tar.gz
+          asset_name: bot-linux-amd64.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Windows Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bot-windows-amd64.zip
+          asset_name: bot-windows-amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bot-macos-amd64.tar.gz
+          asset_name: bot-macos-amd64.tar.gz
+          asset_content_type: application/gzip
