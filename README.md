@@ -65,6 +65,90 @@ Before you begin, ensure you have Go installed on your system.
     go run main.go
     ```
 
+## Deployment (Running 24/7)
+
+For production, it is highly recommended to run the bot on a **Linux** server for better stability, performance, and tooling.
+
+### Method 1: Linux (Using `screen`)
+
+`screen` is a terminal multiplexer that allows you to run a process in the background and detach from the session, keeping it running even after you log out.
+
+1.  **Install `screen`** (if not already installed):
+
+    ```bash
+    # For Debian/Ubuntu
+    sudo apt update && sudo apt install screen
+
+    # For CentOS/RHEL
+    sudo yum install screen
+    ```
+
+2.  **Build the Application**:
+    It's better to run a compiled binary for performance.
+
+    ```bash
+    go build
+    ```
+
+    This will create an executable file (e.g., `Aemy-go`).
+
+3.  **Start a `screen` Session**:
+
+    ```bash
+    screen -S bot-session
+    ```
+
+4.  **Run the Bot Inside `screen`**:
+    Execute the compiled binary.
+
+    ```bash
+    ./Aemy-go
+    ```
+
+5.  **Detach from the Session**:
+    Press `Ctrl + A`, then `D`. The bot is now running in the background.
+
+6.  **Re-attach to the Session** (to view logs or stop the bot):
+    ```bash
+    screen -r bot-session
+    ```
+
+### Method 2: Windows (Using a Service Manager)
+
+On Windows, you can use a tool like **NSSM (the Non-Sucking Service Manager)** to run the bot as a Windows service.
+
+1.  **Build the Application**:
+
+    ```bash
+    go build
+    ```
+
+    This creates `Aemy-go.exe`.
+
+2.  **Download NSSM**:
+    Get the latest release from the [NSSM website](https://nssm.cc/download).
+
+3.  **Install the Service**:
+
+    - Extract `nssm.exe` and place it in a known location (or add it to your `PATH`).
+    - Open Command Prompt as an administrator.
+    - Run the installer GUI:
+      ```cmd
+      nssm install AemyBot
+      ```
+    - In the GUI:
+      - **Path**: Browse to your compiled `Aemy-go.exe`.
+      - **Startup directory**: Set it to the folder where your bot is located.
+      - Click **Install service**.
+
+4.  **Start the Service**:
+
+    ```cmd
+    nssm start AemyBot
+    ```
+
+    Your bot is now running as a background service. You can manage it using `nssm` commands (`stop`, `restart`, `status`).
+
 ## Troubleshooting
 
 ### Error: `go-sqlite3 requires cgo`
@@ -90,7 +174,7 @@ You need to install a GCC toolchain, such as [MinGW-w64](https://www.mingw-w64.o
 
 ## Author
 
-- **[Seaavey]** - _Initial work_ - [seaavey](https://github.com/seaavey)
+- **Seaavey** - _Initial work_ - [seaavey](https://github.com/seaavey)
 
 See also the list of [contributors](https://github.com/seaavey/Aemy-go/contributors) who participated in this project.
 
