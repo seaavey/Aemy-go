@@ -4,8 +4,8 @@
 package utils
 
 import (
-	"botwa/config"
-	"botwa/types"
+	"aemy/config"
+	"aemy/types"
 	"strings"
 	"time"
 

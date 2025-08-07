@@ -4,7 +4,7 @@
 package utils
 
 import (
-	"botwa/config"
+	"aemy/config"
 
 	"go.mau.fi/whatsmeow/types/events"
 )

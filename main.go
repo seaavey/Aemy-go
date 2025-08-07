@@ -3,7 +3,7 @@
 package main
 
 import (
-	"botwa/client"
+	"aemy/client"
 	"fmt"
 	"os"
 	"os/signal"

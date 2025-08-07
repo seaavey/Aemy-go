@@ -3,8 +3,8 @@
 package handler
 
 import (
-	"botwa/config"
-	"botwa/utils"
+	"aemy/config"
+	"aemy/utils"
 	"fmt"
 
 	"go.mau.fi/whatsmeow"
@@ -27,15 +27,8 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 	case *events.Message:
 		// Serialize the raw message event into a more manageable custom format.
 		m := utils.Serialize(v)
-
-		// Ignore certain messages:
-		// - Skip messages from newsletters to avoid processing channel-type messages (like WhatsApp Channels).
-		// - If 'Self' mode is enabled, only allow commands from the bot owner.
-		if m.FromServer == "newsletter" || (config.Self && !m.IsOwner) {
-			return
-		}
-
-
+		
+		
 		// Automatically mark status updates as read.
 		if m.From.String() == "status@broadcast" {
 			err := client.MarkRead(
@@ -49,7 +42,15 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 				fmt.Println("Failed to mark status as read:", err)
 			}
 		}
-
+		
+		
+		// Ignore certain messages:
+		// - Skip messages from newsletters to avoid processing channel-type messages (like WhatsApp Channels).
+		// - If 'Self' mode is enabled, only allow commands from the bot owner.
+		if m.FromServer == "newsletter" || (config.Self && !m.IsOwner) {
+			return
+		}
+		
 		// Pass the serialized message to the command handler for further processing.
 		HandleCommand(client, m, v)
 	}

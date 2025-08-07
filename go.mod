@@ -1,4 +1,4 @@
-module botwa
+module aemy
 
 go 1.24.2
 

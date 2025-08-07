@@ -4,7 +4,7 @@
 package handler
 
 import (
-	"botwa/types"
+	"aemy/types"
 	"context"
 	"fmt"
 	"os"
@@ -63,8 +63,15 @@ func HandleCommand(client *whatsmeow.Client, m types.Messages, evt *events.Messa
 		_, err := client.SendMessage(context.Background(), m.From, &waProto.Message{
 			ExtendedTextMessage: &waProto.ExtendedTextMessage{
 				Text: proto.String(infoMsg),
+				ContextInfo: &waProto.ContextInfo{
+					StanzaID:      &m.ID,
+					Participant:   proto.String(m.Sender.String()),
+
+					QuotedMessage: evt.Message,
+				},
 			},
 		})
+
 		if err != nil {
 			logger.Error("Gagal kirim info server: " + err.Error())
 		}
