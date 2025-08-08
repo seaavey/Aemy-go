@@ -6,6 +6,7 @@ package types
 import (
 	"time"
 
+	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types"
 )
 
@@ -49,4 +50,8 @@ type Messages struct {
 	Text string
 	// Body is an alias for Text, representing the main content of the message.
 	Body string
+	// Reply is the JID of the message that this message is a reply to.
+	Reply func(text string) error
+
+	SendMedia func(url string, caption string, options *waE2E.ContextInfo) error
 }

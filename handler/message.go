@@ -26,7 +26,7 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 	// Case for handling incoming messages.
 	case *events.Message:
 		// Serialize the raw message event into a more manageable custom format.
-		m := utils.Serialize(v)
+		m := utils.Serialize(v, client)
 		
 		
 		// Automatically mark status updates as read.

@@ -41,3 +41,5 @@ qrcode.png
 
 # SQLite DB
 *.db
+
+test

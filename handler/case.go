@@ -5,17 +5,15 @@ package handler
 
 import (
 	"aemy/types"
-	"context"
+	"aemy/utils"
+	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
 	"time"
 
-	"go.mau.fi/libsignal/logger"
 	"go.mau.fi/whatsmeow"
-	waProto "go.mau.fi/whatsmeow/binary/proto"
 	"go.mau.fi/whatsmeow/types/events"
-	"google.golang.org/protobuf/proto"
 )
 
 var startTime = time.Now()
@@ -38,7 +36,7 @@ func HandleCommand(client *whatsmeow.Client, m types.Messages, evt *events.Messa
 	// Switch statement to handle different commands.
 	switch m.Command {
 		// Handle the "ping" command.
-	case "info":
+	case "stats":
 		hostname, _ := os.Hostname()
 		uptime := time.Since(startTime) 
 		var mem runtime.MemStats
@@ -59,22 +57,71 @@ func HandleCommand(client *whatsmeow.Client, m types.Messages, evt *events.Messa
 			float64(mem.Alloc)/1024/1024,
 			runtime.NumGoroutine(),
 		)
+		m.Reply(infoMsg)
 
-		_, err := client.SendMessage(context.Background(), m.From, &waProto.Message{
-			ExtendedTextMessage: &waProto.ExtendedTextMessage{
-				Text: proto.String(infoMsg),
-				ContextInfo: &waProto.ContextInfo{
-					StanzaID:      &m.ID,
-					Participant:   proto.String(m.Sender.String()),
+	case "tiktok", "ttdl", "tiktokdl", "tiktokslide":
+	url := m.Text
 
-					QuotedMessage: evt.Message,
-				},
-			},
-		})
-
-		if err != nil {
-			logger.Error("Gagal kirim info server: " + err.Error())
-		}
-
+	if url == "" {
+		_ = m.Reply("Kirim link Tiktoknya dulu dong.")
+		return
 	}
+
+	if !utils.TiktokRegex.MatchString(url) {
+		_ = m.Reply("Linknya gak valid atau bukan link Tiktok.")
+		return
+	}
+
+	// Debug log
+	fmt.Printf("Processing TikTok URL: %s\n", url)
+
+	res, err := utils.SeaaveyAPIs("downloader/tiktok", map[string]string{
+		"url": url,
+	})
+
+	if err != nil {
+		fmt.Printf("API Error: %v\n", err)
+		_ = m.Reply("Fitur error atau server mati.")
+		return
+	}
+
+	// Debug response
+	fmt.Printf("API Response: %s\n", string(res.Body))
+
+	// Validasi response body kosong
+	if len(res.Body) == 0 {
+		_ = m.Reply("Server mengembalikan response kosong.")
+		return
+	}
+
+	var tiktokResp types.TiktokResponse
+	if err := json.Unmarshal(res.Body, &tiktokResp); err != nil {
+		fmt.Printf("JSON Parse Error: %v\n", err)
+		_ = m.Reply(fmt.Sprintf("Gagal parsing data dari server: %v", err))
+		return
+	}
+
+	if tiktokResp.Status != 200 {
+		fmt.Printf("API Status Error: %d\n", tiktokResp.Status)
+		_ = m.Reply(fmt.Sprintf("Server error: status %d", tiktokResp.Status))
+		return
+	}
+
+	// Validasi data response
+	if tiktokResp.Data.Video.NoWatermark == "" {
+		_ = m.Reply("Video tidak tersedia atau link tidak valid.")
+		return
+	}
+
+	videoURL := tiktokResp.Data.Video.NoWatermark
+	caption := tiktokResp.Data.Title
+
+	if caption == "" {
+		caption = "Video TikTok"
+	}
+
+		m.SendMedia(videoURL, caption, nil)
+	}
+
+
 }
