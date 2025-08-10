@@ -1,57 +1,96 @@
 // Package types defines custom data structures used throughout the application.
-// These types help in standardizing the data format, particularly for handling
-// incoming messages in a more structured and convenient way.
+// These types help standardize data formats, making message handling cleaner
+// and easier when working with WhatsMeow.
 package types
 
 import (
 	"time"
 
+	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types"
 )
 
-// Messages is a custom struct that represents a serialized WhatsApp message.
-// It abstracts the raw message event from whatsmeow into a more accessible format,
-// containing parsed information like the command, arguments, sender details, and more.
+// Options defines optional parameters for sending media or messages.
+type Options struct {
+	// Caption is the text that will accompany the sent media.
+	Caption string
+
+	// ContextInfo contains additional message context such as mentions,
+	// quoted messages, or forwarded info.
+	ContextInfo *waE2E.ContextInfo
+}
+
+// Messages represents a parsed and structured WhatsApp message.
+// It abstracts the raw WhatsMeow message event into a cleaner format
+// with easy access to sender, chat, and content information.
 type Messages struct {
 	// From is the JID (Jabber ID) of the chat where the message was sent.
-	// This could be a group JID or a user JID.
+	// This can be either a group JID or an individual user JID.
 	From types.JID
-	// FromUser is the user part of the From JID.
+
+	// FromUser is the username part of the From JID (e.g., phone number without @server).
 	FromUser string
-	// FromServer is the server part of the From JID (e.g., "s.whatsapp.net").
+
+	// FromServer is the server domain part of the From JID (e.g., "s.whatsapp.net").
 	FromServer string
-	// FromMe indicates if the message was sent by the bot's own number.
+
+	// FromMe indicates whether the message was sent by the bot's own account.
 	FromMe bool
+
 	// ID is the unique identifier of the message.
 	ID types.MessageID
-	// IsGroup is true if the message was sent in a group chat.
+
+	// IsGroup is true if the message came from a group chat.
 	IsGroup bool
-	// IsOwner is true if the message was sent by a user listed in the config.Owners.
+
+	// IsOwner is true if the message sender is listed as a bot owner in the configuration.
 	IsOwner bool
-	// Sender is the JID of the user who sent the message. In a group, this is the
-	// participant's JID; in a private chat, it's the same as From.
+
+	// Sender is the JID of the actual message sender.
+	// In groups, this is the participant’s JID; in private chats, it’s the same as From.
 	Sender types.JID
-	// SenderUser is the user part of the Sender JID.
+
+	// SenderUser is the username part of the Sender JID.
 	SenderUser string
-	// SenderServer is the server part of the Sender JID.
+
+	// SenderServer is the server domain part of the Sender JID.
 	SenderServer string
-	// Pushname is the display name of the sender as set in their WhatsApp profile.
+
+	// Pushname is the display name set by the sender in their WhatsApp profile.
 	Pushname string
-	// Timestamp is the time when the message was sent.
+
+	// Timestamp is the exact time when the message was sent.
 	Timestamp time.Time
-	// Prefix is the command prefix used (e.g., '!' or '.').
+
+	// Prefix is the bot command prefix used (e.g., "!", ".", "/").
 	Prefix string
-	// Command is the parsed command from the message text (e.g., "ping").
+
+	// Command is the extracted bot command from the message text (without the prefix).
 	Command string
-	// Args is a slice of strings containing the arguments that followed the command.
+
+	// Args contains any arguments following the command, split by spaces.
 	Args []string
-	// Text is the complete, raw text content of the message.
+
+	// Text is the complete raw text content of the message.
 	Text string
+
 	// Body is an alias for Text, representing the main content of the message.
 	Body string
-	// Reply is the JID of the message that this message is a reply to.
+
+	// Mentioned contains a list of JIDs mentioned in the message.
+	Mentioned []types.JID
+
+	// React sends a reaction (emoji) to the message.
+	// Example: m.React("👍")
+	React func(emoji string) error
+
+	// Reply sends a text reply to the message.
+	// Example: m.Reply("Hello!")
 	Reply func(text string) error
 
-	SendMedia func(url string, caption string, options *waE2E.ContextInfo) error
+	// SendImage sends an image to the chat.
+	// url: direct URL to the image file.
+	// opts: optional parameters such as Caption and ContextInfo.
+	SendImage func(url string, opts Options) (whatsmeow.SendResponse, error)
 }

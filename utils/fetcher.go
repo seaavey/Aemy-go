@@ -4,64 +4,52 @@
 package utils
 
 import (
+	"aemy/types"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // BaseAPI defines the base URL for the Seaavey API service.
 // This constant serves as the root endpoint for all API interactions.
 const BaseAPI = "https://api.seaavey.my.id/api"
 
-// Fetch represents the response structure returned by HTTP requests.
-// It encapsulates the complete response data including status code,
-// response body, and HTTP headers for further processing.
-type Fetch struct {
-	// Status contains the HTTP status code returned by the server
-	Status int
-	
-	// Body contains the raw response body as a byte slice
-	Body []byte
-	
-	// Headers contains all HTTP headers returned in the response
-	Headers http.Header
+// httpClient is a shared HTTP client with a 30-second timeout.
+var httpClient = &http.Client{
+	Timeout: 30 * time.Second,
 }
 
 // SeaaveyAPIs performs an HTTP GET request to the Seaavey API with the specified endpoint and parameters.
-// This function constructs the complete URL by combining the base API URL with the provided endpoint
-// and appends query parameters as needed.
+// It automatically builds the full URL with query parameters, sends the request, and returns
+// a ResponseAPIs struct with the response data.
 //
 // Parameters:
-//   - endpoint: The API endpoint path to append to the base URL (e.g., "users", "data/info")
-//   - params: A map of query parameters to include in the request URL
+//   - endpoint: path after base URL, e.g. "downloader/tiktok"
+//   - params: map of query parameters to encode into URL
 //
 // Returns:
-//   - *Fetch: A pointer to the Fetch struct containing the response data
-//   - error: An error if the request fails at any stage (URL construction, network issues, etc.)
+//   - *types.ResponseAPIs: struct containing status code, body bytes, and headers
+//   - error: if request creation, network call, or reading response fails
 //
-// Example usage:
-//   response, err := SeaaveyAPIs("downloader/tiktok", map[string]string{"url": "https://www.tiktok.com/@ayrdnaa/video/7530206290354720018"})
-//   if err != nil {
-//       log.Fatal(err)
-//   }
-//   fmt.Printf("Status: %d, Body: %s\n", response.Status, string(response.Body))
-//
-// The function implements the following features:
-//   - Automatic URL construction with proper path joining
-//   - Query parameter encoding and URL encoding
-//   - 10-second timeout for requests to prevent hanging
-//   - Proper User-Agent header identification
-//   - Automatic response body reading and memory management
-//   - Deferred response body closure to prevent resource leaks
-func SeaaveyAPIs(endpoint string, params map[string]string) (*Fetch, error) {
-	base := "https://api.seaavey.my.id/api/"
+// Example:
+//   resp, err := SeaaveyAPIs("downloader/tiktok", map[string]string{"url": "https://www.tiktok.com/..."})
+//   if err != nil { ... }
+//   fmt.Println(resp.Status, string(resp.Body))
+func SeaaveyAPIs(endpoint string, params map[string]string) (*types.ResponseAPIs, error) {
+	base := BaseAPI + "/"
 	query := url.Values{}
 	for k, v := range params {
 		query.Set(k, v)
 	}
 
 	fullURL := base + endpoint + "?" + query.Encode()
-	resp, err := http.Get(fullURL)
+	req, err := http.NewRequest("GET", fullURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +60,38 @@ func SeaaveyAPIs(endpoint string, params map[string]string) (*Fetch, error) {
 		return nil, err
 	}
 
-	return &Fetch{
+	return &types.ResponseAPIs{
 		Status:  resp.StatusCode,
 		Body:    body,
 		Headers: resp.Header,
 	}, nil
+}
+
+// FetchBuffer performs a generic HTTP GET request to the specified URL with optional headers,
+// returning the response body as a byte slice.
+//
+// Parameters:
+//   - url: the full URL to fetch
+//   - headers: optional map of HTTP headers to set on the request
+//
+// Returns:
+//   - []byte: response body bytes
+//   - error: if request creation, network call, or reading response fails
+func FetchBuffer(url string, headers map[string]string) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return io.ReadAll(resp.Body)
 }
