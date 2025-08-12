@@ -94,6 +94,8 @@ type Messages struct {
 	// opts: optional parameters such as Caption and ContextInfo.
 	SendImage func(url string, opts Options) (whatsmeow.SendResponse, error)
 
+	SendVideo func(url string, opts Options) (whatsmeow.SendResponse, error)
+	
 	// Quoted contains the serialized data of the message being replied to.
 	// It is nil if the message is not a reply.
 	Quoted *Messages

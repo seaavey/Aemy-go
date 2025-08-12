@@ -3,9 +3,9 @@
 // allowing for easy customization without modifying core application logic.
 package config
 
-// Prefixes defines a list of characters that are recognized as command prefixes.
-// Messages starting with any of these characters will be treated as commands.
-var Prefixes = []rune{'!', '.'}
+// Prefixes defines a list of strings that are recognized as command prefixes.
+// Bisa pakai karakter biasa atau emoji.
+var Prefixes = []string{"!", ".", "😂", "🔥", "🐱‍👤"}
 
 // Owners contains a list of WhatsApp user IDs (phone numbers) that have
 // administrative privileges. These users can access special commands

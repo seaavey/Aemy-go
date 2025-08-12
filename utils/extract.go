@@ -7,6 +7,7 @@ import (
 	"aemy/config"
 	"bytes"
 	"os/exec"
+	"strings"
 
 	"go.mau.fi/whatsmeow/types/events"
 )
@@ -58,15 +59,15 @@ func GetPrefix(text string) string {
 		return ""
 	}
 
-	first := rune(text[0])
 	for _, prefix := range config.Prefixes {
-		if first == prefix {
-			return string(first)
+		if strings.HasPrefix(text, prefix) {
+			return prefix
 		}
 	}
 
 	return ""
 }
+
 
 func ExecuteShell(command string) (string, error) {
 	cmd := exec.Command("bash", "-c", command)

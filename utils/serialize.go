@@ -178,6 +178,56 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 			
 			return ok, nil
 		},
+
+		// BETA: Send a video
+		SendVideo: func(url string, opts local.Options) (whatsmeow.SendResponse, error) {
+			// Fetch file from URL
+			data, err := FetchBuffer(url, nil)
+			if err != nil {
+				return whatsmeow.SendResponse{}, fmt.Errorf("fetch error: %s", err)
+			}
+
+			// Upload to WhatsApp
+			uploaded, err := client.Upload(context.Background(), data, whatsmeow.MediaVideo)
+			if err != nil {
+				return whatsmeow.SendResponse{}, fmt.Errorf("upload error: %s", err)
+			}
+
+			// Generate thumbnail from first frame
+			var thumbnail bytes.Buffer
+			if img, _, err := image.Decode(bytes.NewReader(data)); err == nil {
+				if err := jpeg.Encode(&thumbnail, img, &jpeg.Options{Quality: 20}); err != nil {
+					return whatsmeow.SendResponse{}, fmt.Errorf("encode thumbnail error: %s", err)
+				}
+			}
+
+			// Send message
+			msg := &waE2E.Message{
+				VideoMessage: &waE2E.VideoMessage{
+					URL:           proto.String(uploaded.URL),
+					DirectPath:    proto.String(uploaded.DirectPath),
+					MediaKey:      uploaded.MediaKey,
+					Caption:       proto.String(opts.Caption),
+					Mimetype:      proto.String(http.DetectContentType(data)),
+					FileEncSHA256: uploaded.FileEncSHA256,
+					FileSHA256:    uploaded.FileSHA256,
+					FileLength:    proto.Uint64(uint64(len(data))),
+					JPEGThumbnail: thumbnail.Bytes(),
+					ContextInfo: &waE2E.ContextInfo{
+						StanzaID:      &info.ID,
+						Participant:   proto.String(info.Sender.String()),
+						QuotedMessage: ctx.Message,
+					},
+				},
+			}
+
+			ok, err := client.SendMessage(context.Background(), info.Chat, msg)
+			if err != nil {
+				return whatsmeow.SendResponse{}, fmt.Errorf("error send message %s", err)
+			}
+
+			return ok, nil
+		},
 	}
 }
 
