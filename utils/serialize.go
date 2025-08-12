@@ -61,6 +61,22 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		}
 	}
 
+	var quotedMsg *local.Messages
+	if ctx.Message.ExtendedTextMessage != nil && ctx.Message.ExtendedTextMessage.ContextInfo.GetQuotedMessage() != nil {
+		quotedInfo := ctx.Message.ExtendedTextMessage.ContextInfo
+		quotedSenderJID, _ := types.ParseJID(quotedInfo.GetParticipant())
+
+		quotedMsg = &local.Messages{
+			ID:           quotedInfo.GetStanzaID(),
+			From:         info.Chat, // The chat is the same
+			Sender:       quotedSenderJID,
+			SenderUser:   quotedSenderJID.User,
+			SenderServer: quotedSenderJID.Server,
+			Body:         GetQuotedText(quotedInfo.GetQuotedMessage()),
+			Message:      quotedInfo.GetQuotedMessage(),
+		}
+	}
+
 	return local.Messages{
 		From:         info.Chat,
 		FromUser:     info.Chat.User,
@@ -80,6 +96,8 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		Text:         strings.Join(args, " "),
 		Body:         body,
 		Mentioned:    mentionedJIDs,
+		Message:      ctx.Message,
+		Quoted:       quotedMsg,
 
 		Reply: func(text string) error {
 			_, err := client.SendMessage(context.Background(), info.Chat, &waProto.Message{
@@ -162,6 +180,27 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		},
 	}
 }
+
+// GetQuotedText extracts the text content from a quoted message.
+func GetQuotedText(msg *waE2E.Message) string {
+	if msg == nil {
+		return ""
+	}
+	if msg.ExtendedTextMessage != nil {
+		return *msg.ExtendedTextMessage.Text
+	}
+	if msg.Conversation != nil {
+		return *msg.Conversation
+	}
+	if msg.ImageMessage != nil && msg.ImageMessage.Caption != nil {
+		return *msg.ImageMessage.Caption
+	}
+	if msg.VideoMessage != nil && msg.VideoMessage.Caption != nil {
+		return *msg.VideoMessage.Caption
+	}
+	return ""
+}
+
 
 // isOwner checks if a given user ID is listed as an owner in the config.
 // Returns true if user is an owner, false otherwise.
