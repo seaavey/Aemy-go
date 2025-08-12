@@ -5,6 +5,8 @@ package utils
 
 import (
 	"aemy/config"
+	"bytes"
+	"os/exec"
 
 	"go.mau.fi/whatsmeow/types/events"
 )
@@ -64,4 +66,19 @@ func GetPrefix(text string) string {
 	}
 
 	return ""
+}
+
+func ExecuteShell(command string) (string, error) {
+	cmd := exec.Command("bash", "-c", command)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return stderr.String(), err
+	}
+
+	return out.String(), nil
 }
