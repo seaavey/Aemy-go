@@ -3,9 +3,10 @@ module aemy
 go 1.24.2
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.30
+	github.com/mattn/go-sqlite3 v1.14.31
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	go.mau.fi/whatsmeow v0.0.0-20250807072145-72ce90b82194
+	go.mau.fi/whatsmeow v0.0.0-20250811141640-b804d10c54c2
+	golang.org/x/image v0.30.0
 	google.golang.org/protobuf v1.36.7
 )
 

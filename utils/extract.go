@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types/events"
 )
 
@@ -29,6 +30,28 @@ func GetText(ctx *events.Message) string {
 
 	msg := ctx.Message
 
+	switch {
+	case msg.ImageMessage != nil && msg.ImageMessage.Caption != nil:
+		return *msg.ImageMessage.Caption
+	case msg.VideoMessage != nil && msg.VideoMessage.Caption != nil:
+		return *msg.VideoMessage.Caption
+	case msg.ExtendedTextMessage != nil && msg.ExtendedTextMessage.Text != nil:
+		return *msg.ExtendedTextMessage.Text
+	case msg.DocumentMessage != nil && msg.DocumentMessage.Caption != nil:
+		return *msg.DocumentMessage.Caption
+	case msg.Conversation != nil:
+		return *msg.Conversation
+	default:
+		return ""
+	}
+}
+
+
+// GetQuotedText extracts the text content from a quoted message.
+func GetQuotedText(msg *waE2E.Message) string {
+	if msg == nil {
+		return ""
+	}
 	switch {
 	case msg.ImageMessage != nil && msg.ImageMessage.Caption != nil:
 		return *msg.ImageMessage.Caption

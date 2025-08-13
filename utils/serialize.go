@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	_ "golang.org/x/image/webp"
+
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
 	"go.mau.fi/whatsmeow/proto/waE2E"
@@ -100,10 +102,10 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		Quoted:       quotedMsg,
 
 		Reply: func(text string) error {
-			_, err := client.SendMessage(context.Background(), info.Chat, &waProto.Message{
-				ExtendedTextMessage: &waProto.ExtendedTextMessage{
+			_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{
+				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
 					Text: proto.String(text),
-					ContextInfo: &waProto.ContextInfo{
+					ContextInfo: &waE2E.ContextInfo{
 						StanzaID:      &info.ID,
 						Participant:   proto.String(info.Sender.String()),
 						QuotedMessage: ctx.Message,
@@ -114,8 +116,8 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		},
 
 		React: func(emoji string) error {
-			_, err := client.SendMessage(context.Background(), info.Chat, &waProto.Message{
-				ReactionMessage: &waProto.ReactionMessage{
+			_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{
+				ReactionMessage: &waE2E.ReactionMessage{
 					Key: &waProto.MessageKey{
 						FromMe:    proto.Bool(info.IsFromMe),
 						ID:        proto.String(info.ID),
@@ -204,7 +206,7 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 			// Send message
 			msg := &waE2E.Message{
 				VideoMessage: &waE2E.VideoMessage{
-					URL:           proto.String(uploaded.URL),
+					URL:           proto.String(uploaded.URL), 
 					DirectPath:    proto.String(uploaded.DirectPath),
 					MediaKey:      uploaded.MediaKey,
 					Caption:       proto.String(opts.Caption),
@@ -230,27 +232,6 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		},
 	}
 }
-
-// GetQuotedText extracts the text content from a quoted message.
-func GetQuotedText(msg *waE2E.Message) string {
-	if msg == nil {
-		return ""
-	}
-	if msg.ExtendedTextMessage != nil {
-		return *msg.ExtendedTextMessage.Text
-	}
-	if msg.Conversation != nil {
-		return *msg.Conversation
-	}
-	if msg.ImageMessage != nil && msg.ImageMessage.Caption != nil {
-		return *msg.ImageMessage.Caption
-	}
-	if msg.VideoMessage != nil && msg.VideoMessage.Caption != nil {
-		return *msg.VideoMessage.Caption
-	}
-	return ""
-}
-
 
 // isOwner checks if a given user ID is listed as an owner in the config.
 // Returns true if user is an owner, false otherwise.

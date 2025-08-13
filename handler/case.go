@@ -113,7 +113,8 @@ func HandleCommand(client *whatsmeow.Client, m types.Messages, evt *events.Messa
 		_ = m.Reply(infoMsg)
 
 	case "test":
-		m.SendVideo("https://v16m-default.tiktokcdn.com/d732ed1ef06de4ab4256fb78a215c7fb/689b14e1/video/tos/alisg/tos-alisg-pve-0037c001/oEAVqRBaKBIhsi5AISlksYBEXEq3aAQGCi2va/?a=0&bti=OHYpOTY0Zik3OjlmOm01MzE6ZDQ0MDo%3D&ch=0&cr=13&dr=0&er=0&lr=all&net=0&cd=0%7C0%7C0%7C&cv=1&br=1830&bt=915&cs=0&ds=6&ft=EeF4ntZWD0Bb12NvoaNTWIxRYH0F8q_45SY&mime_type=video_mp4&qs=4&rc=aDk0Zzw6ZjRkOjc4ZWk8O0Bpamw5PHM5cnFkNTMzODczNEBiYzY0X14vNl8xM2MuMF8uYSNkXi9hMmRraC1hLS1kMTFzcw%3D%3D&vvpl=1&l=2025081212175139AE3E77EF03F30D8C31&btag=e000b8000", types.Options{})
+		m.SendImage("https://avatars.githubusercontent.com/u/121863865?v=4", types.Options{})
+		m.React("👍")
 	case "tiktok", "ttdl", "tiktokdl", "tiktokslide":
 		url := strings.TrimSpace(m.Text)
 		if url == "" {
@@ -135,6 +136,30 @@ func HandleCommand(client *whatsmeow.Client, m types.Messages, evt *events.Messa
 		if err := json.Unmarshal(res.Body, &data); err != nil || data.Status != 200 {
 			m.Reply("Gagal ambil data dari server.")
 			return
+		}
+
+		if len(data.Data.Images) > 0 {
+			for i, img := range data.Data.Images {
+				caption := ""
+				if i == 0 {
+					caption = data.Data.Title
+				}
+				_, err := m.SendImage(img.URL, types.Options{
+					Caption: caption,
+				})
+				if err != nil {
+					m.Reply(fmt.Sprintf("Gagal mengirim foto: %v", err))
+				}
+			}
+		} else if data.Data.Video != nil && data.Data.Video.NoWatermark != "" {
+			_, err := m.SendVideo(data.Data.Video.NoWatermark, types.Options{
+				Caption: data.Data.Title,
+			})
+			if err != nil {
+				m.Reply("Gagal mengirim video.")
+			}
+		} else {
+			m.Reply("Tidak ada media untuk dikirim.")
 		}
 
 	case "exec":
