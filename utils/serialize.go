@@ -102,18 +102,37 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		Quoted:       quotedMsg,
 
 		Reply: func(text string) error {
-			_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{
-				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
-					Text: proto.String(text),
-					ContextInfo: &waE2E.ContextInfo{
+				_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{
+					ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+						Text: proto.String(text),
+						ContextInfo: &waE2E.ContextInfo{
+							StanzaID:      &info.ID,
+							Participant:   proto.String(info.Sender.String()),
+							QuotedMessage: ctx.Message,
+						},
+					},
+				})
+				return err
+			},
+
+			ReplyContext: func(text string, contextInfo *waE2E.ContextInfo) error {
+				// If no context info provided, use default quoted message context
+				if contextInfo == nil {
+					contextInfo = &waE2E.ContextInfo{
 						StanzaID:      &info.ID,
 						Participant:   proto.String(info.Sender.String()),
 						QuotedMessage: ctx.Message,
+					}
+				}
+				
+				_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{
+					ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+						Text:        proto.String(text),
+						ContextInfo: contextInfo,
 					},
-				},
-			})
-			return err
-		},
+				})
+				return err
+			},
 
 		React: func(emoji string) error {
 			_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{

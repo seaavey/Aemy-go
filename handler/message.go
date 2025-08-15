@@ -3,9 +3,12 @@
 package handler
 
 import (
+	"aemy/commands"
 	"aemy/config"
 	"aemy/utils"
+	"context"
 	"fmt"
+	"strings"
 
 	"go.mau.fi/whatsmeow"
 	waTypes "go.mau.fi/whatsmeow/types"
@@ -52,6 +55,24 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 		}
 		
 		// Pass the serialized message to the command handler for further processing.
-		HandleCommand(client, m, v)
+		if m.Prefix == "" || !strings.HasPrefix(m.Body, m.Prefix) {
+			return
+		}
+
+		cmd := strings.ToLower(m.Command)
+
+		// Lookup the handler for the command from the automatic registry.
+		if handler, ok := commands.Get(cmd); ok {
+			// Create a context for the command execution.
+			ctx := context.Background()
+			
+			// Execute the command handler.
+			// In a more complex application, you might want to handle errors differently,
+			// perhaps by logging them or sending an error message back to the user.
+			// For now, we'll just ignore the error.
+			_ = handler.Handle(ctx, client, m, v)
+		}
+		// If no handler is found, the command is silently ignored.
+		// You could add a default handler here if desired.
 	}
 }

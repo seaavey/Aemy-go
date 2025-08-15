@@ -35,3 +35,9 @@ func (h *ExecHandler) Handle(ctx context.Context, client *whatsmeow.Client, m ty
 	_ = m.Reply(output)
 	return nil
 }
+
+// init function for automatic registration
+func init() {
+	handler := NewExecHandler()
+	MustRegister([]string{"exec"}, handler, "")
+}

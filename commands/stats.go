@@ -100,3 +100,9 @@ func (h *StatsHandler) Handle(ctx context.Context, client *whatsmeow.Client, m t
 	_ = m.Reply(infoMsg)
 	return nil
 }
+
+// init function for automatic registration
+func init() {
+	handler := NewStatsHandler()
+	MustRegister([]string{"stats"}, handler, "utility")
+}

@@ -26,23 +26,23 @@ func NewTiktokHandler() *TiktokHandler {
 func (h *TiktokHandler) Handle(ctx context.Context, client *whatsmeow.Client, m types.Messages, evt *events.Message) error {
 	url := strings.TrimSpace(m.Text)
 	if url == "" {
-		m.Reply("Kirim link Tiktoknya dulu dong.")
+		m.Reply("Please send a TikTok link first.")
 		return nil // Return nil as this is a user input error, not a system error
 	}
 	if !utils.TiktokRegex.MatchString(url) {
-		m.Reply("Linknya gak valid atau bukan link Tiktok.")
+		m.Reply("Invalid link or not a TikTok link.")
 		return nil // Return nil as this is a user input error, not a system error
 	}
 
 	res, err := utils.SeaaveyAPIs("downloader/tiktok", map[string]string{"url": url})
 	if err != nil || len(res.Body) == 0 {
-		m.Reply("Fitur error atau server mati.")
+		m.Reply("Feature error or server is down.")
 		return err // Return the error to indicate a system issue
 	}
 
 	var data types.TiktokResponse
 	if err := json.Unmarshal(res.Body, &data); err != nil || data.Status != 200 {
-		m.Reply("Gagal ambil data dari server.")
+		m.Reply("Failed to get data from server.")
 		return err // Return the error to indicate a system issue
 	}
 
@@ -56,7 +56,7 @@ func (h *TiktokHandler) Handle(ctx context.Context, client *whatsmeow.Client, m 
 				Caption: caption,
 			})
 			if err != nil {
-				m.Reply(fmt.Sprintf("Gagal mengirim foto: %v", err))
+				m.Reply(fmt.Sprintf("Failed to send image: %v", err))
 				// Continue sending other images even if one fails
 			}
 		}
@@ -65,13 +65,19 @@ func (h *TiktokHandler) Handle(ctx context.Context, client *whatsmeow.Client, m 
 			Caption: data.Data.Title,
 		})
 		if err != nil {
-			m.Reply("Gagal mengirim video.")
+			m.Reply("Failed to send video.")
 			return err // Return the error to indicate a system issue
 		}
 	} else {
-		m.Reply("Tidak ada media untuk dikirim.")
+		m.Reply("No media to send.")
 		// Not an error, just no media found
 	}
 
 	return nil
+}
+
+// init function for automatic registration
+func init() {
+	handler := NewTiktokHandler()
+	MustRegister([]string{"tiktok", "ttdl", "tiktokdl", "tiktokslide"}, handler, "downloader")
 }

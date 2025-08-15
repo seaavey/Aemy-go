@@ -1,10 +1,10 @@
 // Package commands defines the interface for command handlers and provides
 // a registry for mapping command names to their respective handlers.
-package commands
+package types
 
 import (
 	"context"
-	"aemy/types"
+
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/types/events"
 )
@@ -14,5 +14,5 @@ import (
 type CommandHandler interface {
 	// Handle processes the command with the given context, client, message, and event.
 	// It returns an error if the command processing fails.
-	Handle(ctx context.Context, client *whatsmeow.Client, m types.Messages, evt *events.Message) error
+	Handle(ctx context.Context, client *whatsmeow.Client, m Messages, evt *events.Message) error
 }

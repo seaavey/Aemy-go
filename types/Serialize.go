@@ -88,6 +88,10 @@ type Messages struct {
 	// Reply sends a text reply to the message.
 	// Example: m.Reply("Hello!")
 	Reply func(text string) error
+	
+	// ReplyContext sends a text reply with custom ContextInfo.
+	// Example: m.ReplyContext("Hello!", contextInfo)
+	ReplyContext func(text string, contextInfo *waE2E.ContextInfo) error
 
 	// SendImage sends an image to the chat.
 	// url: direct URL to the image file.
