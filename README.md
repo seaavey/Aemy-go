@@ -5,6 +5,11 @@
 
 A powerful and extensible WhatsApp bot written in Go, designed for easy interaction and customization.
 
+> **Version Note:**
+>
+> - If you want to use the version with "case" features, use the code from commit [cc622cd](https://github.com/seaavey/Aemy-go/blob/cc622cd9baefa1748c21a9b7b6c9fe2ab1b5436e) or [v0.2.0-beta](https://github.com/seaavey/Aemy-go/releases/tag/v0.2.0-beta).
+> - If you don't need the "case" features, use the latest version from this repository.
+
 ## Features
 
 - **WhatsApp Client**: Seamlessly connect and interact with the WhatsApp platform.
@@ -178,9 +183,21 @@ You need to install a GCC toolchain, such as [MinGW-w64](https://www.mingw-w64.o
 
 ## Author
 
-- **Seaavey** - _Initial work_ - [seaavey](https://github.com/seaavey)
+- **Seaavey** [Seaavey](https://github.com/seaavey)
 
 See also the list of [contributors](https://github.com/seaavey/Aemy-go/contributors) who participated in this project.
+
+## Contact
+
+For questions or support, you can reach out via:
+
+- **Email**: [seaavey@gmail.com](mailto:seaavey@gmail.com)
+- **Telegram**: [@seaaveyz](https://t.me/@seaaveyz)
+- **WhatsApp Channel**: [Join Channel](https://whatsapp.com/channel/0029Vb3gqjpHltYCf4WOSt3u)
+
+## API
+
+You can also access our REST API at [https://api.seaavey.my.id/](https://api.seaavey.my.id/)
 
 ## Contributing
 
