@@ -1,7 +1,12 @@
 # Go WhatsApp Bot
 
+<div align="left">
+<img src="config/thumbnail.png" width="200" align="right" alt="Thumbnail">
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/badge/Go-1.22+-blue.svg)](https://go.dev/)
+
+</div>
 
 A powerful and extensible WhatsApp bot written in Go, designed for easy interaction and customization.
 
@@ -74,6 +79,26 @@ Before you begin, ensure you have Go installed on your system.
 
 For production, it is highly recommended to run the bot on a **Linux** server for better stability, performance, and tooling.
 
+> ⚠️ **Important Recommendation**:
+> Running this bot on Windows for 24/7 production use is not recommended due to limitations in process management and system stability.
+> For a reliable 24/7 deployment, we strongly recommend using a VPS (Virtual Private Server) with a Linux distribution.
+>
+> **Recommended VPS Providers**:
+>
+> | Provider              | Plan                   | Price            | Link                                               |
+> | --------------------- | ---------------------- | ---------------- | -------------------------------------------------- |
+> | Hostdata              | NAT VPS EU SSD         | IDR 15,000/month | [hostdata.id](https://hostdata.id)                 |
+> | Atlantic Server       | Starter NAT            | IDR 15,000/month | [atlantic-server.com](https://atlantic-server.com) |
+> | DigitalOcean          | Starter Droplet        | $4/month         | [digitalocean.com](https://digitalocean.com)       |
+> | Linode                | Nanode                 | $5/month         | [linode.com](https://linode.com)                   |
+> | Vultr                 | Cloud Compute          | $2.50/month      | [vultr.com](https://vultr.com)                     |
+> | Google Cloud Platform | Free Tier for Students | Free             | [cloud.google.com](https://cloud.google.com)       |
+>
+> **Recommended Operating Systems (Production)**:
+>
+> - Ubuntu 22.04 LTS
+> - Debian 10 (Buster) or Debian 11 (Bullseye)
+
 ### A Note on Pterodactyl (Not Recommended)
 
 While Pterodactyl is a popular panel for hosting applications, it is **not recommended** for this bot. Pterodactyl is primarily designed for game servers and its file management system can interfere with how this bot saves session data (`session.db`, `qrcode.png`). This can lead to frequent QR code scans and session loss every time the server restarts. For a stable experience, please use one of the recommended methods below.
@@ -122,9 +147,10 @@ While Pterodactyl is a popular panel for hosting applications, it is **not recom
     screen -r bot-session
     ```
 
-### Method 2: Windows (Using a Service Manager)
+### Method 2: Windows (Using a Service Manager) ⚠️ _Not Recommended for Production_
 
 On Windows, you can use a tool like **NSSM (the Non-Sucking Service Manager)** to run the bot as a Windows service.
+**Note**: While this method works for development/testing, it's not recommended for production deployments due to stability and performance limitations compared to Linux.
 
 1.  **Build the Application**:
 
