@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
 	"time"
 
 	"go.mau.fi/whatsmeow"
@@ -27,8 +26,7 @@ func (h *MenuHandler) Handle(ctx context.Context, client *whatsmeow.Client, m ty
 	currentTime := time.Now().Format("02-Jan-2006 15:04:05")
 	hostname, _ := os.Hostname()
 
-	// Ambil uptime server (contoh sederhana, nanti bisa disesuaikan)
-	uptime := time.Since(startTime).Round(time.Second) // startTime nanti di-set di init()
+	uptime := time.Since(startTime).Round(time.Second)
 
 	// Buat header info server
 	txt := "*Server Info*\n"
@@ -46,7 +44,7 @@ func (h *MenuHandler) Handle(ctx context.Context, client *whatsmeow.Client, m ty
 
 	for _, category := range categories {
 		commands := commandsByCategory[category]
-		txt += fmt.Sprintf("*%s:*\n", strings.Title(category))
+		txt += fmt.Sprintf("*%s:*\n", utils.TitleCaser(category))
 
 		commandNames := make([]string, 0, len(commands))
 		for name := range commands {
@@ -61,9 +59,9 @@ func (h *MenuHandler) Handle(ctx context.Context, client *whatsmeow.Client, m ty
 		txt += "\n"
 	}
 
-	thumbnail, err := os.ReadFile("config/image.png")
+	thumbnail, err := os.ReadFile("config/thumbnail.png")
 	if err != nil {
-		thumbnail = nil 
+		thumbnail, _ = utils.FetchBuffer("https://raw.githubusercontent.com/seaavey/Aemy-go/refs/heads/main/config/thumbnail.png", nil) 
 	}
 	_ = m.ReplyContext(txt, &waE2E.ContextInfo{
 		StanzaID:      &m.ID,

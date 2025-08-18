@@ -95,3 +95,45 @@ func FetchBuffer(url string, headers map[string]string) ([]byte, error) {
 
 	return io.ReadAll(resp.Body)
 }
+
+
+// GetContentType sends an HTTP HEAD request to the specified URL and retrieves
+// the value of the "Content-Type" header from the response.
+//
+// Parameters:
+//   - url: The target URL as a string.
+//
+// Returns:
+//   - string: The Content-Type value from the response header. If the header
+//     is missing, it returns "unknown".
+//   - error: An error if the request fails.
+//
+// Example:
+//
+//     ct, err := GetContentType("https://example.com/image.jpg")
+//     if err != nil {
+//         log.Fatal(err)
+//     }
+//     fmt.Println("Content-Type:", ct)
+//
+// Notes:
+//   - This function uses an HTTP client with a 10-second timeout.
+//   - It performs a HEAD request instead of GET to reduce bandwidth usage.
+//
+func GetContentType(url string) (string, error) {
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Head(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	contentType := resp.Header.Get("Content-Type")
+	if contentType == "" {
+		return "unknown", nil
+	}
+	
+	return contentType, nil
+}

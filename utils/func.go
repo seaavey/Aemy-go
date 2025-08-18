@@ -1,6 +1,11 @@
 package utils
 
-import "time"
+import (
+	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
 
 func Ucapan() string {
 	jam := time.Now().Hour()
@@ -15,4 +20,8 @@ func Ucapan() string {
 	default:
 		return "Selamat Malam 🌙"
 	}
+}
+
+func TitleCaser(text string) string {
+    return cases.Title(language.English).String(text)
 }

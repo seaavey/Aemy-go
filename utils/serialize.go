@@ -16,7 +16,7 @@ import (
 	_ "golang.org/x/image/webp"
 
 	"go.mau.fi/whatsmeow"
-	waProto "go.mau.fi/whatsmeow/binary/proto"
+	"go.mau.fi/whatsmeow/proto/waCommon"
 	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -137,7 +137,7 @@ func Serialize(ctx *events.Message, client *whatsmeow.Client) local.Messages {
 		React: func(emoji string) error {
 			_, err := client.SendMessage(context.Background(), info.Chat, &waE2E.Message{
 				ReactionMessage: &waE2E.ReactionMessage{
-					Key: &waProto.MessageKey{
+					Key: &waCommon.MessageKey{
 						FromMe:    proto.Bool(info.IsFromMe),
 						ID:        proto.String(info.ID),
 						Participant: proto.String(info.Sender.String()),
