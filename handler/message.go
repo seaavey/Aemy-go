@@ -33,7 +33,7 @@ func EventHandler(evt interface{}, client *whatsmeow.Client) {
 		
 		
 		// Automatically mark status updates as read. 
-		if m.From.String() == "status@broadcast" && !m.FromMe {
+		if m.From.String() == "status@broadcast" && config.ReadStatus && !m.FromMe {
 			err := client.MarkRead(
 				[]waTypes.MessageID{m.ID},
 				m.Timestamp,
